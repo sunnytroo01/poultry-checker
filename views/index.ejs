@@ -20,12 +20,18 @@
       <hr>
       <p class="modal-prompt">Select your bird type to begin:</p>
       <div class="bird-choices">
-        <% birdTypes.forEach(bird => { %>
-          <button class="bird-choice" data-bird="<%= bird.id %>">
-            <i class="fa-solid fa-<%= bird.id === 'chick' ? 'kiwi-bird' : 'crow' %>"></i>
-            <span><%= bird.label %></span>
-          </button>
-        <% }) %>
+        <button class="bird-choice" data-bird="hen">
+          <i class="fa-solid fa-crow"></i>
+          <span>Hen</span>
+        </button>
+        <button class="bird-choice" data-bird="rooster">
+          <i class="fa-solid fa-crow"></i>
+          <span>Rooster</span>
+        </button>
+        <button class="bird-choice" data-bird="chick">
+          <i class="fa-solid fa-kiwi-bird"></i>
+          <span>Chick</span>
+        </button>
       </div>
       <p class="modal-disclaimer">For educational purposes only. Consult a veterinarian for diagnosis.</p>
     </div>
