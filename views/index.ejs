@@ -3,274 +3,336 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poultry Symptom Checker</title>
+  <title>CluckMD - Poultry Symptom Checker</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
-  <!-- Bird Type Selector Modal -->
-  <div id="bird-modal" class="modal">
-    <div class="modal-content">
-      <h2><i class="fa-solid fa-stethoscope"></i> Poultry Symptom Checker</h2>
-      <p>What type of bird are you checking?</p>
-      <div class="bird-type-grid">
+  <!-- ===== Bird Type Selector ===== -->
+  <div id="bird-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <h1>CluckMD</h1>
+      </div>
+      <p class="modal-subtitle">Poultry Symptom Checker</p>
+      <hr>
+      <p class="modal-prompt">Select your bird type to begin:</p>
+      <div class="bird-choices">
         <% birdTypes.forEach(bird => { %>
-          <button class="bird-type-btn" data-bird="<%= bird.id %>">
-            <i class="fa-solid fa-<%= bird.icon %>"></i>
+          <button class="bird-choice" data-bird="<%= bird.id %>">
+            <i class="fa-solid fa-<%= bird.id === 'chick' ? 'kiwi-bird' : 'crow' %>"></i>
             <span><%= bird.label %></span>
           </button>
         <% }) %>
       </div>
+      <p class="modal-disclaimer">For educational purposes only. Consult a veterinarian for diagnosis.</p>
     </div>
   </div>
 
-  <!-- Main App -->
+  <!-- ===== Main Application ===== -->
   <div id="app" class="app hidden">
-    <header>
-      <div class="header-left">
-        <h1><i class="fa-solid fa-stethoscope"></i> Poultry Symptom Checker</h1>
-        <span id="bird-label" class="bird-badge"></span>
-      </div>
-      <button id="change-bird" class="change-bird-btn">
-        <i class="fa-solid fa-rotate"></i> Change Bird
-      </button>
-    </header>
 
-    <div class="panels">
-      <!-- Panel 1: Symptom Categories -->
-      <div class="panel symptom-panel">
-        <div class="panel-header">
-          <i class="fa-solid fa-list-check"></i> Select Symptoms
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <i class="fa-solid fa-heart-pulse logo-icon"></i>
+        <strong class="logo-text">CluckMD</strong>
+        <span class="topbar-sep">|</span>
+        <span class="topbar-label">Symptom Checker</span>
+        <span id="bird-tag" class="bird-tag"></span>
+      </div>
+      <button id="restart-btn" class="restart-btn">
+        <i class="fa-solid fa-rotate-left"></i> Start Over
+      </button>
+    </div>
+
+    <!-- 4-Column Layout -->
+    <div class="columns">
+
+      <!-- Col 1: Body Area Filter -->
+      <div class="col col-areas">
+        <div class="col-header">
+          <i class="fa-solid fa-hand-pointer"></i> Filter by Area
         </div>
-        <div class="categories">
-          <% symptomCategories.forEach(cat => { %>
-            <div class="category">
-              <button class="category-toggle">
-                <i class="fa-solid fa-<%= cat.icon %>"></i>
-                <span><%= cat.category %></span>
-                <i class="fa-solid fa-chevron-down toggle-arrow"></i>
-              </button>
-              <div class="symptom-list collapsed">
-                <% cat.symptoms.forEach(symptom => { %>
-                  <button class="symptom-btn" data-id="<%= symptom.id %>">
-                    <i class="fa-solid fa-plus-circle add-icon"></i>
-                    <span><%= symptom.label %></span>
-                  </button>
-                <% }) %>
-              </div>
-            </div>
+        <div class="area-list">
+          <% bodyAreas.forEach(area => { %>
+            <button class="area-btn<%= area.id === 'all' ? ' active' : '' %>" data-area="<%= area.id %>">
+              <%= area.label %>
+            </button>
           <% }) %>
         </div>
       </div>
 
-      <!-- Panel 2: Selected Symptoms -->
-      <div class="panel selected-panel">
-        <div class="panel-header">
+      <!-- Col 2: Symptom List -->
+      <div class="col col-symptoms">
+        <div class="col-header">
+          <i class="fa-solid fa-list"></i> Symptoms
+          <span class="sort-controls">
+            <button class="sort-btn active" data-sort="alpha">A-Z</button>
+          </span>
+        </div>
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="symptom-search" placeholder="Search symptoms...">
+        </div>
+        <div id="symptom-list" class="symptom-list">
+          <% symptoms.forEach(s => { %>
+            <button class="sym-btn" data-id="<%= s.id %>" data-area="<%= s.bodyArea %>" data-birds="<%= s.birds.join(',') %>">
+              <i class="fa-solid fa-plus"></i>
+              <span><%= s.label %></span>
+            </button>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Col 3: Selected Symptoms -->
+      <div class="col col-selected">
+        <div class="col-header">
           <i class="fa-solid fa-clipboard-list"></i> Selected
-          <span id="selected-count" class="count-badge">0</span>
+          <span id="sel-count" class="count-pill">0</span>
         </div>
         <div id="selected-list" class="selected-list">
-          <p class="empty-message">Click symptoms from the left to add them here</p>
+          <p class="placeholder-text">
+            <i class="fa-solid fa-arrow-left"></i>
+            Click symptoms to add them
+          </p>
         </div>
-        <button id="check-btn" class="check-btn hidden">
-          <i class="fa-solid fa-magnifying-glass-chart"></i> Check Symptoms
-        </button>
-        <button id="clear-btn" class="clear-btn hidden">
-          <i class="fa-solid fa-trash-can"></i> Clear All
-        </button>
+        <div class="selected-actions hidden" id="selected-actions">
+          <button id="check-btn" class="check-btn">
+            <i class="fa-solid fa-stethoscope"></i> Find Conditions
+          </button>
+          <button id="clear-btn" class="clear-btn">Clear All</button>
+        </div>
       </div>
 
-      <!-- Panel 3: Results -->
-      <div class="panel results-panel">
-        <div class="panel-header">
-          <i class="fa-solid fa-clipboard-check"></i> Possible Conditions
+      <!-- Col 4: Possible Conditions -->
+      <div class="col col-results">
+        <div class="col-header">
+          <i class="fa-solid fa-book-medical"></i> Possible Conditions
         </div>
         <div id="results-list" class="results-list">
-          <p class="empty-message">Select symptoms and click "Check Symptoms" to see results</p>
+          <p class="placeholder-text">
+            Select symptoms and press<br>"Find Conditions" to see matches
+          </p>
         </div>
       </div>
+
     </div>
 
-    <footer>
-      <i class="fa-solid fa-circle-info"></i>
-      For educational purposes only. Always consult a veterinarian for proper diagnosis.
-    </footer>
+    <!-- Footer -->
+    <div class="app-footer">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      CluckMD is for educational reference only. Always consult a qualified avian veterinarian for proper diagnosis and treatment.
+    </div>
   </div>
 
   <script>
-    let selectedBird = null;
-    let selectedSymptoms = new Set();
+    let birdType = null;
+    const selected = new Set();
 
-    // Bird type selection
-    document.querySelectorAll(".bird-type-btn").forEach(btn => {
+    // ── Bird selection ──
+    document.querySelectorAll(".bird-choice").forEach(btn => {
       btn.addEventListener("click", () => {
-        selectedBird = btn.dataset.bird;
+        birdType = btn.dataset.bird;
         document.getElementById("bird-modal").classList.add("hidden");
         document.getElementById("app").classList.remove("hidden");
-        document.getElementById("bird-label").innerHTML =
-          `<i class="fa-solid fa-${btn.querySelector("i").className.split("fa-")[1]}"></i> ${btn.querySelector("span").textContent}`;
+        document.getElementById("bird-tag").textContent = btn.querySelector("span").textContent;
+
+        // Hide symptoms not for this bird type
+        document.querySelectorAll(".sym-btn").forEach(sb => {
+          const birds = sb.dataset.birds.split(",");
+          if (!birds.includes(birdType)) {
+            sb.classList.add("hidden");
+          }
+        });
       });
     });
 
-    // Change bird button
-    document.getElementById("change-bird").addEventListener("click", () => {
+    // ── Start over ──
+    document.getElementById("restart-btn").addEventListener("click", () => {
+      birdType = null;
+      selected.clear();
       document.getElementById("bird-modal").classList.remove("hidden");
       document.getElementById("app").classList.add("hidden");
-      selectedSymptoms.clear();
-      updateSelectedPanel();
-      document.getElementById("results-list").innerHTML =
-        '<p class="empty-message">Select symptoms and click "Check Symptoms" to see results</p>';
-      // Re-enable all symptom buttons
-      document.querySelectorAll(".symptom-btn").forEach(b => {
-        b.classList.remove("picked");
+      document.querySelectorAll(".sym-btn").forEach(b => {
+        b.classList.remove("hidden", "picked");
         b.disabled = false;
       });
+      document.querySelectorAll(".area-btn").forEach(b => b.classList.remove("active"));
+      document.querySelector('.area-btn[data-area="all"]').classList.add("active");
+      document.getElementById("symptom-search").value = "";
+      refreshSelected();
+      document.getElementById("results-list").innerHTML =
+        '<p class="placeholder-text">Select symptoms and press<br>"Find Conditions" to see matches</p>';
     });
 
-    // Category toggles
-    document.querySelectorAll(".category-toggle").forEach(toggle => {
-      toggle.addEventListener("click", () => {
-        const list = toggle.nextElementSibling;
-        const arrow = toggle.querySelector(".toggle-arrow");
-        list.classList.toggle("collapsed");
-        arrow.classList.toggle("rotated");
+    // ── Body area filter ──
+    document.querySelectorAll(".area-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".area-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const area = btn.dataset.area;
+        document.querySelectorAll(".sym-btn").forEach(sb => {
+          const birds = sb.dataset.birds.split(",");
+          const birdOk = birds.includes(birdType);
+          const areaOk = area === "all" || sb.dataset.area === area;
+          const searchOk = matchesSearch(sb);
+          if (birdOk && areaOk && searchOk) {
+            sb.classList.remove("hidden");
+          } else {
+            sb.classList.add("hidden");
+          }
+        });
       });
     });
 
-    // Symptom selection
-    document.querySelectorAll(".symptom-btn").forEach(btn => {
+    // ── Search ──
+    function matchesSearch(btn) {
+      const q = document.getElementById("symptom-search").value.toLowerCase().trim();
+      if (!q) return true;
+      return btn.querySelector("span").textContent.toLowerCase().includes(q);
+    }
+
+    document.getElementById("symptom-search").addEventListener("input", () => {
+      const activeArea = document.querySelector(".area-btn.active").dataset.area;
+      document.querySelectorAll(".sym-btn").forEach(sb => {
+        const birds = sb.dataset.birds.split(",");
+        const birdOk = birds.includes(birdType);
+        const areaOk = activeArea === "all" || sb.dataset.area === activeArea;
+        const searchOk = matchesSearch(sb);
+        if (birdOk && areaOk && searchOk) {
+          sb.classList.remove("hidden");
+        } else {
+          sb.classList.add("hidden");
+        }
+      });
+    });
+
+    // ── Add symptom ──
+    document.querySelectorAll(".sym-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        const id = btn.dataset.id;
-        if (selectedSymptoms.has(id)) return;
-        selectedSymptoms.add(id);
+        if (selected.has(btn.dataset.id)) return;
+        selected.add(btn.dataset.id);
         btn.classList.add("picked");
         btn.disabled = true;
-        updateSelectedPanel();
+        refreshSelected();
+        autoCheck();
       });
     });
 
-    function updateSelectedPanel() {
+    // ── Refresh selected panel ──
+    function refreshSelected() {
       const list = document.getElementById("selected-list");
-      const count = document.getElementById("selected-count");
-      const checkBtn = document.getElementById("check-btn");
-      const clearBtn = document.getElementById("clear-btn");
+      const count = document.getElementById("sel-count");
+      const actions = document.getElementById("selected-actions");
 
-      count.textContent = selectedSymptoms.size;
+      count.textContent = selected.size;
 
-      if (selectedSymptoms.size === 0) {
-        list.innerHTML = '<p class="empty-message">Click symptoms from the left to add them here</p>';
-        checkBtn.classList.add("hidden");
-        clearBtn.classList.add("hidden");
+      if (selected.size === 0) {
+        list.innerHTML = '<p class="placeholder-text"><i class="fa-solid fa-arrow-left"></i> Click symptoms to add them</p>';
+        actions.classList.add("hidden");
         return;
       }
 
-      checkBtn.classList.remove("hidden");
-      clearBtn.classList.remove("hidden");
-
+      actions.classList.remove("hidden");
       list.innerHTML = "";
-      selectedSymptoms.forEach(id => {
-        const sourceBtn = document.querySelector(`.symptom-btn[data-id="${id}"]`);
-        const label = sourceBtn.querySelector("span").textContent;
+
+      selected.forEach(id => {
+        const src = document.querySelector(`.sym-btn[data-id="${id}"]`);
+        const label = src.querySelector("span").textContent;
         const tag = document.createElement("div");
-        tag.className = "selected-tag";
-        tag.innerHTML = `
-          <span>${label}</span>
-          <button class="remove-btn" data-id="${id}">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        `;
+        tag.className = "sel-tag";
+        tag.innerHTML = `<span>${label}</span><button class="rem-btn" data-id="${id}"><i class="fa-solid fa-xmark"></i></button>`;
         list.appendChild(tag);
       });
 
-      // Remove buttons
-      list.querySelectorAll(".remove-btn").forEach(btn => {
+      list.querySelectorAll(".rem-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-          const id = btn.dataset.id;
-          selectedSymptoms.delete(id);
-          const sourceBtn = document.querySelector(`.symptom-btn[data-id="${id}"]`);
-          sourceBtn.classList.remove("picked");
-          sourceBtn.disabled = false;
-          updateSelectedPanel();
+          selected.delete(btn.dataset.id);
+          const src = document.querySelector(`.sym-btn[data-id="${btn.dataset.id}"]`);
+          src.classList.remove("picked");
+          src.disabled = false;
+          refreshSelected();
+          autoCheck();
         });
       });
     }
 
-    // Check symptoms
-    document.getElementById("check-btn").addEventListener("click", async () => {
-      const btn = document.getElementById("check-btn");
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
-
-      const response = await fetch("/check", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          symptoms: Array.from(selectedSymptoms),
-          birdType: selectedBird,
-        }),
-      });
-
-      const data = await response.json();
-      const resultsList = document.getElementById("results-list");
-
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-magnifying-glass-chart"></i> Check Symptoms';
-
-      if (data.results.length === 0) {
-        resultsList.innerHTML = `
-          <div class="no-results">
-            <i class="fa-solid fa-circle-check"></i>
-            <p>No matching conditions found for the selected symptoms.</p>
-            <p class="hint">Try selecting more symptoms or different combinations.</p>
-          </div>
-        `;
-        return;
+    // ── Auto-check as symptoms change ──
+    function autoCheck() {
+      if (selected.size >= 2) {
+        runCheck();
+      } else if (selected.size === 0) {
+        document.getElementById("results-list").innerHTML =
+          '<p class="placeholder-text">Select symptoms and press<br>"Find Conditions" to see matches</p>';
+      } else {
+        document.getElementById("results-list").innerHTML =
+          '<p class="placeholder-text">Select at least 2 symptoms to find matching conditions</p>';
       }
+    }
 
-      resultsList.innerHTML = "";
-      data.results.forEach(condition => {
-        const severityClass = condition.severity;
-        const card = document.createElement("div");
-        card.className = `condition-card ${severityClass}`;
-        card.innerHTML = `
-          <div class="condition-header">
-            <div class="condition-title">
-              <i class="fa-solid fa-${condition.icon}"></i>
-              <h3>${condition.name}</h3>
-            </div>
-            <div class="match-info">
-              <span class="severity-badge ${severityClass}">${condition.severity}</span>
-              <span class="match-badge">${condition.percentage}% match</span>
-            </div>
-          </div>
-          <p class="condition-desc">${condition.description}</p>
-          <div class="matched-symptoms">
-            <strong><i class="fa-solid fa-link"></i> Matching symptoms:</strong>
-            ${condition.matchedLabels.map(s => `<span class="match-tag">${s}</span>`).join("")}
-          </div>
-          <div class="action-list">
-            <strong><i class="fa-solid fa-kit-medical"></i> What to do:</strong>
-            <ul>
-              ${condition.action.map(a => `<li><i class="fa-solid fa-chevron-right"></i> ${a}</li>`).join("")}
-            </ul>
-          </div>
-        `;
-        resultsList.appendChild(card);
-      });
-    });
+    // ── Manual check button ──
+    document.getElementById("check-btn").addEventListener("click", runCheck);
 
-    // Clear all
+    // ── Clear all ──
     document.getElementById("clear-btn").addEventListener("click", () => {
-      selectedSymptoms.clear();
-      document.querySelectorAll(".symptom-btn").forEach(b => {
+      selected.clear();
+      document.querySelectorAll(".sym-btn").forEach(b => {
         b.classList.remove("picked");
         b.disabled = false;
       });
-      updateSelectedPanel();
+      refreshSelected();
       document.getElementById("results-list").innerHTML =
-        '<p class="empty-message">Select symptoms and click "Check Symptoms" to see results</p>';
+        '<p class="placeholder-text">Select symptoms and press<br>"Find Conditions" to see matches</p>';
     });
+
+    // ── Run the check ──
+    async function runCheck() {
+      if (selected.size < 2) return;
+
+      const res = await fetch("/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symptoms: Array.from(selected), birdType }),
+      });
+      const data = await res.json();
+      const container = document.getElementById("results-list");
+
+      if (data.results.length === 0) {
+        container.innerHTML = `
+          <div class="no-match">
+            <i class="fa-solid fa-circle-question"></i>
+            <p>No conditions matched your selected symptoms.</p>
+            <p class="hint">Try adding more symptoms or different combinations.</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = "";
+      data.results.forEach(c => {
+        const card = document.createElement("div");
+        card.className = "condition-card";
+        const catClass = c.category.toLowerCase().replace(/[^a-z]/g, "");
+        card.innerHTML = `
+          <div class="cond-top">
+            <h3 class="cond-name">${c.name}</h3>
+            <span class="cat-label cat-${catClass}">${c.category}</span>
+          </div>
+          <div class="match-bar-wrap">
+            <div class="match-bar" style="width: ${c.percentage}%"></div>
+            <span class="match-pct">${c.percentage}% match (${c.matchedCount}/${c.totalSymptoms} symptoms)</span>
+          </div>
+          <p class="cond-desc">${c.description}</p>
+          <div class="cond-matched">
+            <strong>Matching symptoms:</strong>
+            ${c.matchedLabels.map(l => `<span class="matched-tag">${l}</span>`).join("")}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
   </script>
 </body>
 </html>
