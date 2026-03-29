@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poultry Checker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fa-solid fa-clipboard-check"></i> Poultry Checker</h1>
+      <p class="subtitle">Tap a bird to check safe cooking temperatures and tips</p>
+    </header>
+
+    <div class="bird-grid">
+      <% poultry.forEach(bird => { %>
+        <button class="bird-card" data-id="<%= bird.id %>" style="--accent: <%= bird.color %>">
+          <i class="fa-solid fa-<%= bird.icon %> bird-icon"></i>
+          <span class="bird-name"><%= bird.name %></span>
+        </button>
+      <% }) %>
+    </div>
+
+    <div id="result" class="result hidden">
+      <div class="result-header">
+        <i id="result-icon" class="fa-solid"></i>
+        <h2 id="result-name"></h2>
+      </div>
+      <div class="temp-display">
+        <div class="temp-box">
+          <i class="fa-solid fa-temperature-high"></i>
+          <span id="temp-f" class="temp-value"></span>
+        </div>
+        <div class="temp-box">
+          <i class="fa-solid fa-temperature-low"></i>
+          <span id="temp-c" class="temp-value"></span>
+        </div>
+      </div>
+      <div class="tips-section">
+        <h3><i class="fa-solid fa-lightbulb"></i> Safety Tips</h3>
+        <ul id="tips-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll(".bird-card").forEach(card => {
+      card.addEventListener("click", async () => {
+        // Remove 'active' from all cards, add to clicked one
+        document.querySelectorAll(".bird-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+
+        // Fetch the bird data from our server
+        const response = await fetch(`/check/${card.dataset.id}`);
+        const bird = await response.json();
+
+        // Fill in the result section
+        const result = document.getElementById("result");
+        document.getElementById("result-icon").className = `fa-solid fa-${bird.icon}`;
+        document.getElementById("result-name").textContent = bird.name;
+        document.getElementById("temp-f").textContent = `${bird.safeTempF}\u00B0F`;
+        document.getElementById("temp-c").textContent = `${bird.safeTempC}\u00B0C`;
+
+        const tipsList = document.getElementById("tips-list");
+        tipsList.innerHTML = "";
+        bird.tips.forEach(tip => {
+          const li = document.createElement("li");
+          li.innerHTML = `<i class="fa-solid fa-check"></i> ${tip}`;
+          tipsList.appendChild(li);
+        });
+
+        // Show the result with animation
+        result.classList.remove("hidden");
+        result.style.borderColor = bird.color;
+      });
+    });
+  </script>
+</body>
+</html>

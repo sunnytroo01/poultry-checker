@@ -1,0 +1,196 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #f0f0f0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.container {
+  max-width: 700px;
+  width: 100%;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+header h1 i {
+  color: #e74c3c;
+  margin-right: 0.5rem;
+}
+
+.subtitle {
+  color: #a0a0b8;
+  font-size: 1rem;
+}
+
+/* The grid of bird buttons */
+.bird-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.bird-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.8rem 1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: #f0f0f0;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.bird-card:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.bird-card.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.bird-icon {
+  font-size: 2.5rem;
+  color: var(--accent);
+}
+
+.bird-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* The result panel that appears when you click a bird */
+.result {
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.result.hidden {
+  display: none;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.result-header i {
+  font-size: 2rem;
+  color: #e67e22;
+}
+
+.result-header h2 {
+  font-size: 1.6rem;
+}
+
+.temp-display {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.temp-box {
+  background: rgba(231, 76, 60, 0.15);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.temp-box i {
+  font-size: 1.5rem;
+  color: #e74c3c;
+}
+
+.temp-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.tips-section h3 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.tips-section h3 i {
+  color: #f1c40f;
+  margin-right: 0.4rem;
+}
+
+.tips-section ul {
+  list-style: none;
+}
+
+.tips-section li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  line-height: 1.5;
+}
+
+.tips-section li:last-child {
+  border-bottom: none;
+}
+
+.tips-section li i {
+  color: #2ecc71;
+  margin-right: 0.5rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.6rem;
+  }
+
+  .bird-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .bird-card {
+    padding: 1.2rem 0.75rem;
+  }
+
+  .bird-icon {
+    font-size: 2rem;
+  }
+}
